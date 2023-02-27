@@ -6,6 +6,7 @@ import {Coordinate, Direction, GestureEventType} from "../types/types";
 import Snake from "./Snake";
 import {checkGameOver} from "../utils/checkGameOver";
 import Food from "./Food";
+import {checkEatsFood} from "../utils/checkEatsFood";
 
 const SNAKE_INITIAL_POSITION = [{x: 5, y: 5}];
 const FOOD_INITIAL_POSITION = {x: 5, y: 20};
@@ -19,6 +20,7 @@ export default function Game(): JSX.Element {
   const [food, setFood] = React.useState<Coordinate>(FOOD_INITIAL_POSITION)
   const [isGameOver, setIsGameOver] = React.useState<boolean>(false)
   const [isPaused, setIsPaused] = React.useState<boolean>(false)
+  const [score, setScore] = React.useState<number>(0)
 
   React.useEffect(() => {
     if (!isGameOver) {
@@ -58,6 +60,11 @@ export default function Game(): JSX.Element {
 
     // если съедает еду
     // змея увеличивается
+    if (checkEatsFood(newHead, food, 2)) {
+      setSnake([newHead, ...snake])
+
+      setScore(score + SCORE_INCREMENT)
+    }
 
     setSnake([newHead, ...snake.slice(0, -1)])
 
