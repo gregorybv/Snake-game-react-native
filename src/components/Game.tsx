@@ -1,5 +1,5 @@
 import * as React from "react";
-import {SafeAreaView, StyleSheet, View} from "react-native";
+import {SafeAreaView, StyleSheet, Text, View} from "react-native";
 import {Colors} from "../styles/colors";
 import {PanGestureHandler} from "react-native-gesture-handler";
 import {Coordinate, Direction, GestureEventType} from "../types/types";
@@ -7,6 +7,8 @@ import Snake from "./Snake";
 import {checkGameOver} from "../utils/checkGameOver";
 import Food from "./Food";
 import {checkEatsFood} from "../utils/checkEatsFood";
+import {randomFoodPosition} from "../utils/randomFoodPosition";
+import Header from "./Header";
 
 const SNAKE_INITIAL_POSITION = [{x: 5, y: 5}];
 const FOOD_INITIAL_POSITION = {x: 5, y: 20};
@@ -61,13 +63,12 @@ export default function Game(): JSX.Element {
     // если съедает еду
     // змея увеличивается
     if (checkEatsFood(newHead, food, 2)) {
+      setFood(randomFoodPosition(GAME_BOUNDS.xMax, GAME_BOUNDS.yMax))
       setSnake([newHead, ...snake])
-
       setScore(score + SCORE_INCREMENT)
+    } else {
+      setSnake([newHead, ...snake.slice(0, -1)])
     }
-
-    setSnake([newHead, ...snake.slice(0, -1)])
-
   }
 
   const handleGesture = (event: GestureEventType) => {
@@ -93,9 +94,31 @@ export default function Game(): JSX.Element {
     }
   }
 
+  const reloadGame = () => {
+    setSnake(SNAKE_INITIAL_POSITION);
+    setFood(FOOD_INITIAL_POSITION);
+    setIsGameOver(false);
+    setScore(0);
+    setDirection(Direction.Right);
+    setIsPaused(false);
+  };
+
+  const pauseGame = () => {
+    setIsPaused(!isPaused)
+  }
+
   return (
     <PanGestureHandler onGestureEvent={handleGesture}>
       <SafeAreaView style={styles.container}>
+        <Header reloadGame={reloadGame} pauseGame={pauseGame} isPaused={isPaused}>
+          <Text style={{
+            fontSize: 22,
+            fontWeight: "bold",
+            color: Colors.primary,
+          }}>
+            {score}
+          </Text>
+        </Header>
         <View style={styles.boundaries}>
           <Snake snake={snake}/>
           <Food x={food.x} y={food.y}/>
